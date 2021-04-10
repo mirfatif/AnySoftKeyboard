@@ -30,4 +30,4 @@ git reset --hard HEAD
 ./gradlew --stacktrace checkstyleMain --continue
 
 #see https://github.com/actions/cache/issues/133
-[[ -n "${GITHUB_ACTIONS}" ]] && chmod -R a+rwx .
+[[ -n "${GITHUB_ACTIONS}" ]] && chmod -R a+rwx . || :
