@@ -294,7 +294,13 @@ public class KeyboardSwitcher {
         ensureKeyboardsAreBuilt();
         AnyKeyboard keyboard = mSymbolsKeyboardsArray[keyboardIndex];
 
-        if (keyboard == null || keyboard.getKeyboardMode() != mKeyboardRowMode) {
+        // If it's one of mirfatif keyboards
+        boolean mirfatifKeyboard = mirfatifKeyboard(keyboardIndex);
+
+        // Always use mirfatif symbol keyboards with mirfatif alphabet keyboards
+        if (keyboard == null
+                || keyboard.getKeyboardMode() != mKeyboardRowMode
+                || mirfatifKeyboard) {
             switch (keyboardIndex) {
                 case SYMBOLS_KEYBOARD_REGULAR_INDEX:
                     if (mUse16KeysSymbolsKeyboards) {
@@ -312,9 +318,12 @@ public class KeyboardSwitcher {
                                 createGenericKeyboard(
                                         mDefaultAddOn,
                                         mContext,
-                                        R.xml.symbols,
-                                        R.xml.symbols,
-                                        mContext.getString(R.string.symbols_keyboard),
+                                        mirfatifKeyboard ? R.xml.mirfatif_symbols : R.xml.symbols,
+                                        mirfatifKeyboard ? R.xml.mirfatif_symbols : R.xml.symbols,
+                                        mContext.getString(
+                                                mirfatifKeyboard
+                                                        ? R.string.mirfatif_symbols_keyboard
+                                                        : R.string.symbols_keyboard),
                                         "symbols_keyboard",
                                         mKeyboardRowMode);
                     }
@@ -335,14 +344,24 @@ public class KeyboardSwitcher {
                                 createGenericKeyboard(
                                         mDefaultAddOn,
                                         mContext,
-                                        R.xml.symbols_alt,
-                                        R.xml.symbols_alt,
-                                        mContext.getString(R.string.symbols_alt_keyboard),
+                                        mirfatifKeyboard
+                                                ? R.xml.mirfatif_symbols_alt
+                                                : R.xml.symbols_alt,
+                                        mirfatifKeyboard
+                                                ? R.xml.mirfatif_symbols_alt
+                                                : R.xml.symbols_alt,
+                                        mContext.getString(
+                                                mirfatifKeyboard
+                                                        ? R.string.mirfatif_symbols_alt_keyboard
+                                                        : R.string.symbols_alt_keyboard),
                                         "alt_symbols_keyboard",
                                         mKeyboardRowMode);
                     }
                     break;
                 case SYMBOLS_KEYBOARD_ALT_NUMBERS_INDEX:
+                    if (mirfatifKeyboard) {
+                        return getSymbolsKeyboard(SYMBOLS_KEYBOARD_REGULAR_INDEX);
+                    }
                     keyboard =
                             createGenericKeyboard(
                                     mDefaultAddOn,
@@ -358,8 +377,12 @@ public class KeyboardSwitcher {
                             createGenericKeyboard(
                                     mDefaultAddOn,
                                     mContext,
-                                    R.xml.simple_phone,
-                                    R.xml.simple_phone,
+                                    mirfatifKeyboard
+                                            ? R.xml.mirfatif_simple_phone
+                                            : R.xml.simple_phone,
+                                    mirfatifKeyboard
+                                            ? R.xml.mirfatif_simple_phone
+                                            : R.xml.simple_phone,
                                     mContext.getString(R.string.symbols_phone_keyboard),
                                     "phone_symbols_keyboard",
                                     mKeyboardRowMode);
@@ -369,8 +392,12 @@ public class KeyboardSwitcher {
                             createGenericKeyboard(
                                     mDefaultAddOn,
                                     mContext,
-                                    R.xml.simple_numbers,
-                                    R.xml.simple_numbers,
+                                    mirfatifKeyboard
+                                            ? R.xml.mirfatif_simple_numbers
+                                            : R.xml.simple_numbers,
+                                    mirfatifKeyboard
+                                            ? R.xml.mirfatif_simple_numbers
+                                            : R.xml.simple_numbers,
                                     mContext.getString(R.string.symbols_numbers_keyboard),
                                     "numbers_symbols_keyboard",
                                     mKeyboardRowMode);
@@ -389,7 +416,13 @@ public class KeyboardSwitcher {
                 default:
                     throw new IllegalArgumentException("Unknown keyboardIndex " + keyboardIndex);
             }
-            mSymbolsKeyboardsArray[keyboardIndex] = keyboard;
+
+            // Do not cache mirfatif symbol keyboards.
+            // Other alphabet keyboards should use default symbol keyboards.
+            if (!mirfatifKeyboard) {
+                mSymbolsKeyboardsArray[keyboardIndex] = keyboard;
+            }
+
             mLastSelectedSymbolsKeyboard = keyboardIndex;
             keyboard.loadKeyboard(
                     (mInputView != null) ? mInputView.getThemedKeyboardDimens() : mKeyboardDimens);
@@ -606,7 +639,10 @@ public class KeyboardSwitcher {
             int tooltipResId;
             switch (nextKeyboardIndex) {
                 case SYMBOLS_KEYBOARD_ALT_INDEX:
-                    tooltipResId = R.string.symbols_alt_keyboard;
+                    tooltipResId =
+                            mirfatifKeyboard(SYMBOLS_KEYBOARD_ALT_INDEX)
+                                    ? R.string.mirfatif_symbols_alt_keyboard
+                                    : R.string.symbols_alt_keyboard;
                     break;
                 case SYMBOLS_KEYBOARD_ALT_NUMBERS_INDEX:
                     tooltipResId = R.string.symbols_alt_num_keyboard;
@@ -622,7 +658,10 @@ public class KeyboardSwitcher {
                     break;
                 default:
                     // case SYMBOLS_KEYBOARD_REGULAR_INDEX:
-                    tooltipResId = R.string.symbols_keyboard;
+                    tooltipResId =
+                            mirfatifKeyboard(SYMBOLS_KEYBOARD_REGULAR_INDEX)
+                                    ? R.string.mirfatif_symbols_keyboard
+                                    : R.string.symbols_keyboard;
                     break;
             }
             return mContext.getString(tooltipResId);
@@ -984,5 +1023,40 @@ public class KeyboardSwitcher {
         void onSymbolsKeyboardSet(@NonNull AnyKeyboard keyboard);
 
         void onAvailableKeyboardsChanged(@NonNull List<KeyboardAddOnAndBuilder> builders);
+    }
+
+    // If it's one of mirfatif keyboards
+    private boolean mirfatifKeyboard(int kbInd) {
+        AnyKeyboard[] keyboards;
+        if (kbInd == SYMBOLS_KEYBOARD_PHONE_INDEX
+                || kbInd == SYMBOLS_KEYBOARD_NUMBERS_INDEX
+                || kbInd == SYMBOLS_KEYBOARD_DATETIME_INDEX) {
+            // We cannot rely on last used alphabet keyboard. It might not have been used so far.
+            keyboards = getAlphabetKeyboards();
+        } else if (mLastSelectedKeyboardIndex < 0
+                || mAlphabetKeyboards.length <= mLastSelectedKeyboardIndex) {
+            return false;
+        } else {
+            keyboards = new AnyKeyboard[] {mAlphabetKeyboards[mLastSelectedKeyboardIndex]};
+        }
+
+        for (int i = 0; i < keyboards.length; i++) {
+            AnyKeyboard kb = keyboards[i];
+            if (kb == null) {
+                // Create new keyboard as done in getAlphabetKeyboard()
+                kb = mAlphabetKeyboardsCreators[i].createKeyboard(KEYBOARD_ROW_MODE_NORMAL);
+                if (kb == null) {
+                    continue;
+                }
+            }
+            if (mContext.getString(R.string.mirfatif_qwerty_with_symbols_guid)
+                            .equals(kb.getKeyboardId())
+                    || mContext.getString(R.string.urdu_keyboard_with_symbols_guid)
+                            .equals(kb.getKeyboardId())) {
+                // User is using one of mirfatif keyboards.
+                return true;
+            }
+        }
+        return false;
     }
 }
