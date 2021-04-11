@@ -1,5 +1,6 @@
 ext.shouldBePublished = false
 ext.notPublishingReason = 'Part of the main AnySoftKeyboard app.'
+ext.override_app_id = 'com.anysoftkeyboard.languagepack.mirfatif.english'
 
 apply from: "$rootDir/addons/gradle/pack_apk.gradle"
 
