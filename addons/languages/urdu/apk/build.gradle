@@ -5,7 +5,7 @@ ext.override_app_id = 'com.anysoftkeyboard.languagepack.mirfatif.urdu'
 apply from: "$rootDir/addons/gradle/pack_apk.gradle"
 
 android.defaultConfig {
-    versionCode 2
+    versionCode 5
 }
 
 dependencies {
