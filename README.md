@@ -1,5 +1,15 @@
 # AnySoftKeyboard&nbsp;[![Latest release](https://img.shields.io/github/release/AnySoftKeyboard/AnySoftKeyboard.svg)](https://github.com/AnySoftKeyboard/AnySoftKeyboard/releases)
 
+The way I like ASK to be:
+
+<img src="english_urdu.gif" width="350">
+
+<b>Download:</b>  
+Addons: [Urdu](https://play.google.com/store/apps/details?id=com.anysoftkeyboard.languagepack.mirfatif.urdu) | [English](https://play.google.com/store/apps/details?id=com.anysoftkeyboard.languagepack.mirfatif.english)  
+[Personalized](https://github.com/mirfatif/AnySoftKeyboard/releases/tag/personalized)
+
+---
+
 Discussions can be found on&nbsp;[💬&nbsp;GitHub](https://github.com/AnySoftKeyboard/AnySoftKeyboard/discussions)<br/>
 Follow us on <a rel="me" href="https://hachyderm.io/@anysoftkeyboard">Mastodon</a>
 <br/>
