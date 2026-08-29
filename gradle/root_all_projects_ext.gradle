@@ -3,7 +3,7 @@ allprojects {
         androidBuildTools = libs.versions.androidBuildTools.get()
         robolectricVersion = libs.versions.robolectric.get()
 
-        sideBySideNdkVersion = '29.0.14206865'
+        sideBySideNdkVersion = '28.2.13676358'
 
         sdkTargetVersion = libs.versions.sdkTarget.get() as Integer
         sdkCompileVersion = libs.versions.sdkCompile.get() as Integer

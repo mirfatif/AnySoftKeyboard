@@ -4,3 +4,5 @@ ext.dictionaryInputPossibleCharacters = "\u0618\u0619\u061A\u0621\u0622\u0623\u0
 ext.dictionaryInputAdditionalInnerCharacters = null//"".toCharArray()
 
 apply from: "$rootDir/addons/gradle/language_pack_lib.gradle"
+
+tasks.named('spotlessKotlin').get().dependsOn('makeDictionary')

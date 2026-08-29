@@ -18,4 +18,5 @@ android {
     dataBinding {
         enabled = true
     }
+    kotlinOptions.jvmTarget = '21'
 }
